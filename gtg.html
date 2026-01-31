@@ -1,0 +1,493 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Guess The Number</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #7c3aed;
+      --accent-2: #5b21b6;
+      --muted: #9ca3af;
+      --glass: rgba(255, 255, 255, 0.03);
+      --bg-start: #07102a;
+      --bg-end: #021024;
+    }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+      background: radial-gradient(
+          1200px 600px at 10% 10%,
+          rgba(124, 58, 237, 0.06),
+          transparent
+        ),
+        linear-gradient(180deg, var(--bg-start), var(--bg-end));
+      color: #e6eef8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .card {
+      position: relative;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      outline: 1px solid rgba(124, 58, 237, 0.35);
+      outline-offset: -1px;
+      padding: 2rem;
+      border-radius: 14px;
+      width: 420px;
+      max-width: 95vw;
+      box-shadow: 0 12px 40px rgba(2, 6, 23, 0.6);
+    }
+
+    h1 {
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700;
+      margin: 0 0 10px;
+      font-size: 1.6rem;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .controls .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    input[type='number'] {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--glass);
+      color: inherit;
+      font-size: 1rem;
+    }
+
+    input[type='number']:focus {
+      box-shadow: 0 8px 24px rgba(92, 35, 187, 0.12);
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    button {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: white;
+      border: 0;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(91, 33, 182, 0.18);
+    }
+
+    button[disabled] {
+      opacity: 0.5;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .ghost {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #e6eef8;
+      font-weight: 600;
+    }
+
+    .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(124, 58, 237, 0.12);
+      color: #d8ccff;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+    }
+
+    .meta {
+      display: grid;
+      gap: 6px;
+      margin: 10px 0 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .meta strong {
+      color: #e6eef8;
+      font-weight: 600;
+    }
+
+    .list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+
+    .list span {
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 0.8rem;
+      color: #d2dcf2;
+    }
+
+    #result {
+      margin: 0 0 10px;
+      color: #cfe6ff;
+      min-height: 24px;
+      font-weight: 600;
+    }
+
+    #score,
+    #highscore {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .celebrate {
+      display: inline-block;
+      transform-origin: center;
+      animation: pop 900ms cubic-bezier(0.22, 0.9, 0.3, 1);
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(1);
+      }
+      45% {
+        transform: scale(1.18);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .trophy {
+      position: absolute;
+      right: 18px;
+      top: -36px;
+      width: 68px;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.9);
+      transition: all 0.45s ease;
+      filter: drop-shadow(0 12px 22px rgba(2, 6, 23, 0.6));
+    }
+
+    .trophy.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 6px;
+    }
+
+    select {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: var(--glass);
+      color: inherit;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 420px) {
+      .card {
+        padding: 1.2rem;
+      }
+
+      input[type='number'] {
+        padding: 10px;
+      }
+
+      button {
+        padding: 8px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Guess The Number</h1>
+    <div class="controls">
+      <div class="stack">
+        <div class="row">
+          <input id="guessnumber" type="number" min="1" max="100" placeholder="Enter a number 1-100">
+          <button id="checkBtn">Check</button>
+        </div>
+        <div class="row">
+          <select id="difficulty">
+            <option value="easy">Easy (1-50)</option>
+            <option value="medium" selected>Medium (1-100)</option>
+            <option value="hard">Hard (1-200)</option>
+          </select>
+          <button id="hintBtn" class="ghost">Hint</button>
+          <button id="resetBtn" class="ghost">New Game</button>
+        </div>
+      </div>
+    </div>
+    <p class="subtitle">Guess the number. Press <span style="font-weight:700">.</span> to focus the input.</p>
+    <p id="result">Enter a number and press Check.</p>
+    <div class="meta">
+      <div>Range: <strong id="rangeLabel">1 - 100</strong> <span class="pill" id="difficultyLabel">Medium</span></div>
+      <div>Attempts left: <strong id="attemptsLeft">10</strong> | Hints left: <strong id="hintsLeft">1</strong></div>
+      <div>Guesses:<div id="guessList" class="list"></div></div>
+    </div>
+    <p id="score">Score: 10</p>
+    <p id="highscore">Best: <span id="bestValue">0</span></p>
+    <svg id="trophy" class="trophy" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="#FFD166" d="M6 2h12v2a4 4 0 0 1-4 4h-4A4 4 0 0 1 6 4V2z"/><path fill="#F4A261" d="M8 8v2a6 6 0 0 0 6 6v4H10v2h4v-2h-4v-4a6 6 0 0 0 6-6V8h-2v2a4 4 0 0 1-4 4 4 4 0 0 1-4-4V8H8z"/></svg>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <script>
+    const input = document.getElementById('guessnumber');
+    const checkBtn = document.getElementById('checkBtn');
+    const result = document.getElementById('result');
+    const scoreEl = document.getElementById('score');
+    const trophy = document.getElementById('trophy');
+    const bestValue = document.getElementById('bestValue');
+    const difficulty = document.getElementById('difficulty');
+    const hintBtn = document.getElementById('hintBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const rangeLabel = document.getElementById('rangeLabel');
+    const difficultyLabel = document.getElementById('difficultyLabel');
+    const attemptsLeft = document.getElementById('attemptsLeft');
+    const hintsLeft = document.getElementById('hintsLeft');
+    const guessList = document.getElementById('guessList');
+
+    const settings = {
+      easy: { max: 50, attempts: 10, label: 'Easy' },
+      medium: { max: 100, attempts: 10, label: 'Medium' },
+      hard: { max: 200, attempts: 8, label: 'Hard' }
+    };
+
+    let maxRange = settings.medium.max;
+    let rand = Math.floor(Math.random() * maxRange) + 1;
+    let tot = settings.medium.attempts;
+    let hints = 1;
+    let guesses = [];
+    let lastDiff = null;
+
+    function updateScore() {
+      scoreEl.innerText = 'Score: ' + tot;
+    }
+
+    function updateMeta() {
+      rangeLabel.textContent = '1 - ' + maxRange;
+      attemptsLeft.textContent = String(tot);
+      hintsLeft.textContent = String(hints);
+      input.min = '1';
+      input.max = String(maxRange);
+      input.placeholder = 'Enter a number 1-' + maxRange;
+    }
+
+    function updateGuessList() {
+      guessList.innerHTML = '';
+      guesses.slice(-8).forEach((g) => {
+        const chip = document.createElement('span');
+        chip.textContent = g;
+        guessList.appendChild(chip);
+      });
+    }
+
+    function loadHighScore() {
+      const s = parseInt(localStorage.getItem('gtn_highscore') || '0', 10) || 0;
+      bestValue.textContent = s;
+      return s;
+    }
+
+    function updateHighScoreIfNeeded() {
+      const prev = parseInt(localStorage.getItem('gtn_highscore') || '0', 10) || 0;
+      if (tot > prev) {
+        localStorage.setItem('gtn_highscore', String(tot));
+        bestValue.textContent = tot;
+        return true;
+      }
+      return false;
+    }
+
+    function fireConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+        confetti({ particleCount: 60, spread: 120, origin: { y: 0.6 } });
+      }
+    }
+
+    function playVictorySound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const now = ctx.currentTime;
+        const freqs = [880, 988, 1318, 1760];
+        let t = 0;
+        freqs.forEach((f) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          gain.gain.value = 0.0001;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + t);
+          gain.gain.linearRampToValueAtTime(0.12, now + t + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + t + 0.22);
+          osc.stop(now + t + 0.25);
+          t += 0.12;
+        });
+      } catch (e) {
+        console.warn('Audio error', e);
+      }
+    }
+
+    function endGame(message) {
+      result.textContent = message;
+      result.classList.add('celebrate');
+      checkBtn.disabled = true;
+      input.disabled = true;
+      hintBtn.disabled = true;
+      fireConfetti();
+      playVictorySound();
+      trophy.classList.add('show');
+      updateHighScoreIfNeeded();
+      setTimeout(() => result.classList.remove('celebrate'), 1200);
+      setTimeout(() => {
+        trophy.classList.remove('show');
+        resetGame();
+      }, 2600);
+    }
+
+    function resetGame() {
+      rand = Math.floor(Math.random() * maxRange) + 1;
+      tot = settings[difficulty.value].attempts;
+      hints = 1;
+      guesses = [];
+      lastDiff = null;
+      input.value = '';
+      input.disabled = false;
+      checkBtn.disabled = false;
+      hintBtn.disabled = false;
+      result.textContent = 'Enter a number and press Check.';
+      updateScore();
+      updateMeta();
+      updateGuessList();
+      input.focus();
+    }
+
+    function applyDifficulty() {
+      const config = settings[difficulty.value];
+      maxRange = config.max;
+      difficultyLabel.textContent = config.label;
+      resetGame();
+    }
+
+    function provideHint() {
+      if (hints <= 0) return;
+      const parity = rand % 2 === 0 ? 'even' : 'odd';
+      const bucket = rand <= maxRange / 2 ? `1-${Math.floor(maxRange / 2)}` : `${Math.floor(maxRange / 2) + 1}-${maxRange}`;
+      result.textContent = `Hint: The number is ${parity}, range ${bucket}.`;
+      hints -= 1;
+      updateMeta();
+      hintBtn.disabled = hints <= 0;
+    }
+
+    function check() {
+      const guess = Number(input.value);
+      if (!guess || guess < 1 || guess > maxRange) {
+        result.textContent = 'Please enter a number between 1 and ' + maxRange + '.';
+        return;
+      }
+
+      guesses.push(guess);
+      updateGuessList();
+      const diff = Math.abs(guess - rand);
+      const warmth = lastDiff === null ? '' : diff < lastDiff ? ' (warmer)' : diff > lastDiff ? ' (colder)' : ' (same)';
+      lastDiff = diff;
+
+      if (guess === rand) {
+        result.textContent = 'Your guess is right! The number was ' + rand + '.';
+        endGame('You won! Final score: ' + tot);
+        return;
+      }
+
+      tot -= 1;
+      if (guess < rand) {
+        result.textContent = 'Too low! Try a larger number.' + warmth;
+      } else {
+        result.textContent = 'Too high! Try a smaller number.' + warmth;
+      }
+
+      updateScore();
+      updateMeta();
+
+      if (tot <= 0) {
+        endGame('Game over. The correct number was ' + rand + '.');
+      }
+    }
+
+    checkBtn.addEventListener('click', check);
+    hintBtn.addEventListener('click', provideHint);
+    resetBtn.addEventListener('click', resetGame);
+    difficulty.addEventListener('change', applyDifficulty);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') check();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === '.') {
+        if (input.disabled) {
+          resetGame();
+          setTimeout(() => input.focus(), 40);
+        } else {
+          input.focus();
+          input.select();
+        }
+        e.preventDefault();
+      }
+    });
+
+    updateScore();
+    updateMeta();
+    updateGuessList();
+    loadHighScore();
+  </script>
+</body>
+</html>
